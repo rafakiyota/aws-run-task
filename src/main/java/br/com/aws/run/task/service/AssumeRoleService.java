@@ -13,11 +13,9 @@ import com.amazonaws.services.securitytoken.model.Credentials;
 @Service
 public class AssumeRoleService {
 
-	public BasicSessionCredentials assumeRole(String roleArn, String region) {
+	public BasicSessionCredentials assumeRole(String roleArn, Regions region) {
 		
-		Regions awsRegion = Regions.fromName(region);
-		
-		AWSSecurityTokenService stsClient = AWSSecurityTokenServiceClientBuilder.standard().withRegion(awsRegion).build();
+		AWSSecurityTokenService stsClient = AWSSecurityTokenServiceClientBuilder.standard().withRegion(region).build();
 		
 		AssumeRoleRequest assumeRoleRequest = new AssumeRoleRequest().withRoleArn(roleArn).withRoleSessionName("session-role-list-clusters");
 		

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicSessionCredentials;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.ecs.AmazonECS;
 import com.amazonaws.services.ecs.AmazonECSClientBuilder;
 import com.amazonaws.services.ecs.model.AssignPublicIp;
@@ -28,9 +29,11 @@ public class EcsService {
 
 	public List<String> assumeRoleListClusters(String roleArn, String region) {
 		
-		BasicSessionCredentials credentials = assumeRoleService.assumeRole(roleArn, region);
+		Regions awsRegion = Regions.fromName(region);
 		
-		AmazonECS client = AmazonECSClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(credentials)).build();
+		BasicSessionCredentials credentials = assumeRoleService.assumeRole(roleArn, awsRegion);
+		
+		AmazonECS client = AmazonECSClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(credentials)).withRegion(awsRegion).build();
     	ListClustersResult listClustersResult = client.listClusters();
     	
     	return listClustersResult.getClusterArns();
