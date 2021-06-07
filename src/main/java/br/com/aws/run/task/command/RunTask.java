@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 import com.amazonaws.services.ecs.model.DescribeTaskDefinitionResult;
 import com.amazonaws.services.ecs.model.RunTaskResult;
 
-import br.com.aws.run.task.service.EcsTaskService;
+import br.com.aws.run.task.service.EcsService;
 
 @Order(1)
 @Component
@@ -22,7 +22,7 @@ public class RunTask implements ApplicationRunner {
 	private static final Logger logger = LoggerFactory.getLogger(RunTask.class);
 	
 	@Autowired
-	private EcsTaskService ecsTaskService;
+	private EcsService ecsTaskService;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
@@ -66,6 +66,26 @@ public class RunTask implements ApplicationRunner {
     		
     		logger.info("type: {}", args.getOptionValues("type").get(0));
     		logger.info("run-task: {}", taskResult);
+    	}
+    	
+    	if (args.containsOption("type") && "assume-role-list-clusters".equals(args.getOptionValues("type").get(0))) {
+    		
+    		if (!args.containsOption("role") || args.getOptionValues("role").get(0).isEmpty()) {
+        		throw new IllegalArgumentException("argumento role não enviado!!!");
+        	}
+    		if (!args.containsOption("region") || args.getOptionValues("region").get(0).isEmpty()) {
+        		throw new IllegalArgumentException("argumento region não enviado!!!");
+        	}
+    		
+    		String roleArn = args.getOptionValues("role").get(0);
+    		String region = args.getOptionValues("region").get(0);
+    		
+    		List<String> clusterArns = ecsTaskService.assumeRoleListClusters(roleArn, region);
+    		
+    		logger.info("type: {}", args.getOptionValues("type").get(0));
+    		logger.info("role: {}", args.getOptionValues("role").get(0));
+    		logger.info("region: {}", args.getOptionValues("region").get(0));
+    		logger.info("clusters-arns: {}", clusterArns);
     	}    	
     }
 }
